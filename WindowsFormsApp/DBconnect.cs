@@ -6,8 +6,8 @@ namespace WindowsFormsApp
     internal class DBconnect
     {
         // Chuỗi kết nối đến cơ sở dữ liệu SQL Server
-        string connectionString = "Server=192.168.60.60;Database=LIY_ERP;User Id=lacty;Password=wu0g3tp6;TrustServerCertificate=true;";
-        //string connectionString = "Server=MSI;Database=laptop;User Id=sa;Password=123456;TrustServerCertificate=true;";
+        //string connectionString = "Server=192.168.60.60;Database=LIY_ERP;User Id=lacty;Password=wu0g3tp6;TrustServerCertificate=true;";
+        string connectionString = "Server=MSI;Database=laptop;User Id=sa;Password=123456;TrustServerCertificate=true;";
 
         // Phương thức ExecuteQuery thực hiện truy vấn SQL và trả về một DataTable chứa kết quả
         public DataTable ExecuteQuery(string query, SqlParameter[] parameters = null)
@@ -41,6 +41,7 @@ namespace WindowsFormsApp
             }
         }
         //
+        // Phương thức ExecuteScalar thực hiện truy vấn SQL và trả về một giá trị duy nhất
         // Phương thức ExecuteScalar thực hiện truy vấn SQL và trả về một giá trị duy nhất
         public int ExecuteScalar(string query, SqlParameter[] parameters = null)
         {
