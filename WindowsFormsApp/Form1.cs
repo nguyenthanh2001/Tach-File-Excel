@@ -6,6 +6,7 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Security.Principal;
+using System.Globalization;
 
 namespace WindowsFormsApp
 {
@@ -111,12 +112,17 @@ namespace WindowsFormsApp
                 excelData.Columns.Add("Seq23");
                 excelData.Columns.Add("Seq24");
                 excelData.Columns.Add("Seq25");
-
-
+                excelData.Columns.Add("SO_CHI_LENH");
+                excelData.Columns.Add("THUC_TE_PC");
+                excelData.Columns.Add("LUY_TICH_PC");
+                excelData.Columns.Add("SO_CHUA_PC");
+                excelData.Columns.Add("Don_Vi_San_Xuat");
+                excelData.Columns.Add("Created_Date");
+                
                 //
                 //
                 // Lấy giá trị năm và tháng từ thời gian hiện tại
-                
+
                 // Lặp qua từng sheet trong workbook 
                 foreach (ExcelWorksheet worksheet in workbook.Worksheets)
                 {
@@ -249,7 +255,7 @@ namespace WindowsFormsApp
                             newRow["May"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
                         }
                         //Chat
-                        string pattenchat = ".*MAY.*";
+                        string pattenchat = ".*CHẶT.*";
                         object cellValuechat = worksheet.Cells[row, 8].Value;
                         if (cellValuechat != null && !Regex.IsMatch(cellValuechat.ToString(), pattenchat))
                         {
@@ -262,9 +268,10 @@ namespace WindowsFormsApp
                             newRow["Chat"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
                         }
                         //Ry
-                        //string pattenRy = ".*訂單號碼.*";
+                        string combinedPattern = ".*訂單號碼.*|.*ĐÓNG ĐƠN 10.*";
+
                         object cellValueRy = worksheet.Cells[row, 9].Value;
-                        if (cellValueRy != null)
+                        if (cellValueRy != null && !Regex.IsMatch(cellValueRy.ToString(), combinedPattern))
                         {
                             newRow["Ry"] = cellValueRy.ToString();
                         }
@@ -763,27 +770,123 @@ namespace WindowsFormsApp
                         {
                             newRow["Seq25"] = DBNull.Value; // hoặc null nếu cột cho phép giá trị null
                         }
+                        //
+                        //
+                        //So Chi Lenh
+                        string pattenscl = ".*CHI LENH.*";
+                        object cellValuescl = worksheet.Cells[row, 35].Value;
+                        if (cellValuescl != null && !Regex.IsMatch(cellValuescl.ToString(), pattenscl))
+                        {
+                            newRow["SO_CHI_LENH"] = cellValuescl.ToString();
+                        }
 
-                        // Tiếp tục xử lý cho các cột Seq15 đến Seq25 tương tự như trên...
-                        // Và tiếp tục cho tất cả các cột Seq tương ứng...
+                        else
+                        {
+                            // Xử lý trường hợp khi giá trị của ô là null
+                            newRow["SO_CHI_LENH"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
+                        }
+                        //THUC_TE_PC
+                        string pattenttpc = ".*THUC TE PC.*";
+                        object cellValuettpc = worksheet.Cells[row, 36].Value;
+                        if (cellValuettpc != null && !Regex.IsMatch(cellValuettpc.ToString(), pattenttpc))
+                        {
+                            newRow["THUC_TE_PC"] = cellValuettpc.ToString();
+                        }
 
-                        // Tiếp tục xử lý cho các cột Seq13 đến Seq25 tương tự như trên...
-                        // Và tiếp tục cho tất cả các cột Seq tương ứng...
+                        else
+                        {
+                            // Xử lý trường hợp khi giá trị của ô là null
+                            newRow["THUC_TE_PC"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
+                        }
+                        //LUY_TICH_PC
+                        string pattenltpc = ".*LUY TICH PC.*";
+                        object cellValueltpc = worksheet.Cells[row, 37].Value;
+                        
+                        if (cellValueltpc != null && !Regex.IsMatch(cellValueltpc.ToString(), pattenltpc))
+                        {
+                            newRow["LUY_TICH_PC"] = cellValueltpc.ToString();
+                            if (cellValueltpc.ToString().Equals("#REF!"))
+                            {
+                                newRow["LUY_TICH_PC"] = "0";
+                            }
+                        }
+                        else
+                        {
+                            // Xử lý trường hợp khi giá trị của ô là null
+                            newRow["LUY_TICH_PC"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
+                        }
+                        //SO_CHUA_PC
+                        string pattenscpc = ".*SO CHUA PC.*";
+                        object cellValuelscpc = worksheet.Cells[row, 38].Value;
 
-                        // Tiếp tục xử lý cho các cột Seq11 đến Seq25 tương tự như trên...
-                        // Và tiếp tục cho tất cả các cột Seq tương ứng...
+                        if (cellValuelscpc != null && !Regex.IsMatch(cellValuelscpc.ToString(), pattenscpc))
+                        {
+                            newRow["SO_CHUA_PC"] = cellValuelscpc.ToString();
+                            if (cellValuelscpc.ToString().Equals("#REF!"))
+                            {
+                                newRow["SO_CHUA_PC"] = "0";
+                            }
+                        }
+                        else
+                        {
+                            // Xử lý trường hợp khi giá trị của ô là null
+                            newRow["SO_CHUA_PC"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
+                        }
 
-                        // Tiếp tục xử lý cho các cột Seq9 đến Seq25 tương tự như trên...
-                        // Và tiếp tục cho tất cả các cột Seq tương ứng...
 
-                        // Tiếp tục xử lý cho các cột Seq7 đến Seq25 tương tự như trên...
-                        // Và tiếp tục cho tất cả các cột Seq tương ứng...
+                        //Don_Vi_San_Xuat
+                        string pattendvxs = ".*针车回转表.*";
+                        object cellValueldvsx = worksheet.Cells[row, 1].Value;
 
-                        // Tiếp tục xử lý cho các cột Seq5 đến Seq25 tương tự như trên...
-                        // Và tiếp tục cho tất cả các cột Seq tương ứng...
+                        if (cellValueldvsx != null && Regex.IsMatch(cellValueldvsx.ToString(), pattendvxs)) // && !Regex.IsMatch(cellValueldvsx.ToString(), pattendvxs)
+                        {
 
-                        // Tiếp tục xử lý cho các cột Seq3 đến Seq25 tương tự như trên...
-                        // Và tiếp tục cho tất cả các cột Seq tương ứng...
+                            //newRow["Don_Vi_San_Xuat"] = cellValueldvsx.ToString();
+
+                            string donViSanXuat = cellValueldvsx.ToString();
+
+                            // Biểu thức chính quy để tìm chuỗi "B1-L" hoặc "B2-L" theo sau bởi các chữ số
+                            string pattern = @"B\d+-L\d+";
+
+                            // Sử dụng Regex để tìm chuỗi "B1-L15" trong biến donViSanXuat
+                            Match match = Regex.Match(donViSanXuat, pattern);
+
+                            if (match.Success)
+                            {
+                                // Lấy giá trị từ kết quả tìm kiếm
+                                string desiredValue = match.Value;
+                                newRow["Don_Vi_San_Xuat"] = match.Value;
+                            }
+                        }
+                        else
+                        {
+                            // Xử lý trường hợp khi giá trị của ô là null
+                            newRow["Don_Vi_San_Xuat"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
+                        }
+                        //Created_Date
+                        string pattendate = ".*制表日期.*";
+                        object cellValuedate = worksheet.Cells[row, 1].Value;
+
+                        if (cellValuedate != null && Regex.IsMatch(cellValuedate.ToString(), pattendate)) // && Regex.IsMatch(cellValuedate.ToString(), pattendate)
+                        {
+                            //newRow["Created_Date"] = cellValuedate.ToString();
+                            string dateString = cellValuedate.ToString();
+                            // Tách chuỗi bằng dấu cách và lấy phần tử cuối cùng, tức là ngày tháng năm
+                            string[] parts = dateString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                            string datePart = parts[parts.Length - 1];
+
+                            // Lấy phần ngày tháng năm từ chuỗi datePart
+                            if (DateTime.TryParseExact(datePart, "yyyy/MM/dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                            {
+                                // Gán giá trị đã chuyển đổi thành ngày tháng năm cho cột "Created_Date"
+                                newRow["Created_Date"] = date.ToString("yyyy/MM/dd");
+                            }
+                        }
+                        else
+                        {
+                            // Xử lý trường hợp khi giá trị của ô là null
+                            newRow["Created_Date"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
+                        }
 
                         //
                         //
@@ -868,7 +971,7 @@ namespace WindowsFormsApp
         private void SaveDataToDatabase(DataTable data)
         {
             // Chuẩn bị truy vấn SQL để chèn dữ liệu vào cơ sở dữ liệu
-            string query = "INSERT INTO BANG_XOAY_TUA (ProNo, Ten_Giay, Dao_Chat, Article, Dang_Fom, Goo, May, Chat, Ry, Seq1,Seq2,Seq3,Seq4,Seq5,Seq6,Seq7,Seq8,Seq9,Seq10,Seq11,Seq12,Seq13,Seq14,Seq15,Seq16,Seq17,Seq18,Seq19,Seq20,Seq21,Seq22,Seq23,Seq24,Seq25) VALUES (@Value1, @Value3, @Value4, @Value5, @Value6, @Value7, @Value8, @Value9, @Value10, @Value11,@Value12,@Value13,@Value14,@Value15,@Value16,@Value17,@Value18,@Value19,@Value20,@Value21,@Value22,@Value23,@Value24,@Value25,@Value26,@Value27,@Value28,@Value29,@Value30,@Value31,@Value32,@Value33,@Value34,@Value35)";
+            string query = "INSERT INTO BANG_XOAY_TUA (ProNo, Ten_Giay, Dao_Chat, Article, Dang_Fom, Goo, May, Chat, Ry, size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,SO_CHI_LENH,THUC_TE_PC,LUY_TICH_PC,SO_CHUA_PC,Don_Vi_San_Xuat,Created_Date) VALUES (@Value1, @Value3, @Value4, @Value5, @Value6, @Value7, @Value8, @Value9, @Value10, @Value11,@Value12,@Value13,@Value14,@Value15,@Value16,@Value17,@Value18,@Value19,@Value20,@Value21,@Value22,@Value23,@Value24,@Value25,@Value26,@Value27,@Value28,@Value29,@Value30,@Value31,@Value32,@Value33,@Value34,@Value35,@Value36,@Value37,@Value38,@Value39,@Value40,@Value41)";
 
             // Lặp qua từng hàng trong DataTable và chèn dữ liệu vào cơ sở dữ liệu
             foreach (DataRow row in data.Rows)
@@ -910,7 +1013,16 @@ namespace WindowsFormsApp
             new SqlParameter("@Value32", SqlDbType.Decimal) { Value = row["Seq22"] },
             new SqlParameter("@Value33", SqlDbType.Decimal) { Value = row["Seq23"] },
             new SqlParameter("@Value34", SqlDbType.Decimal) { Value = row["Seq24"] },
-            new SqlParameter("@Value35", SqlDbType.Decimal) { Value = row["Seq25"] }
+            new SqlParameter("@Value35", SqlDbType.Decimal) { Value = row["Seq25"] },
+            new SqlParameter("@Value36", SqlDbType.VarChar) { Value = row["SO_CHI_LENH"] },
+            new SqlParameter("@Value37", SqlDbType.VarChar) { Value = row["THUC_TE_PC"] },
+            new SqlParameter("@Value38", SqlDbType.VarChar) { Value = row["LUY_TICH_PC"] },
+            new SqlParameter("@Value39", SqlDbType.VarChar) { Value = row["SO_CHUA_PC"] },
+            new SqlParameter("@Value40", SqlDbType.VarChar) { Value = row["Don_Vi_San_Xuat"] },
+            new SqlParameter("@Value41", SqlDbType.DateTime) { Value = row["Created_Date"] }
+
+
+            
         };
 
                 // Thêm các tham số cho các cột khác nếu cần thiết 

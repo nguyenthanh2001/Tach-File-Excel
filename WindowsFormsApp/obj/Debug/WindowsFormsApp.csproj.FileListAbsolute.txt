@@ -113,7 +113,6 @@ D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\bin\Debug\pt-BR\Microsof
 D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\bin\Debug\ru\Microsoft.Data.SqlClient.resources.dll
 D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\bin\Debug\zh-Hans\Microsoft.Data.SqlClient.resources.dll
 D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\bin\Debug\zh-Hant\Microsoft.Data.SqlClient.resources.dll
-D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\WindowsFormsApp.csproj.AssemblyReference.cache
 E:\winform\cong ty\excel\Tach-File-Excel\WindowsFormsApp\bin\Debug\import_Xoaytua.exe.config
 E:\winform\cong ty\excel\Tach-File-Excel\WindowsFormsApp\bin\Debug\import_Xoaytua.exe.manifest
 E:\winform\cong ty\excel\Tach-File-Excel\WindowsFormsApp\bin\Debug\import_Xoaytua.application
