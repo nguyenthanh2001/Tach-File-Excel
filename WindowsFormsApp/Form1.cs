@@ -14,7 +14,7 @@ namespace WindowsFormsApp
     {
         private Timer timer;
         private DBconnect dbConnect;
-        private long ProNo = 0; // Bắt đầu từ 0
+        private long ProNo; // Bắt đầu từ 0
         public Form1()
         {
             InitializeComponent();
@@ -27,7 +27,7 @@ namespace WindowsFormsApp
         public int GetNextIdentityValueFromDatabase()
         {
             // Chuỗi truy vấn SQL để lấy 5 số cuối cùng của giá trị prono
-            string query = "SELECT RIGHT(ISNULL(MAX(prono), '00000'), 5) FROM BANG_XOAY_TUA";
+            string query = "SELECT RIGHT(ISNULL(MAX(prono), '00000'), 5) FROM ProgressPross";
 
             // T
             // Thực hiện truy vấn và trả về giá trị lớn nhất hiện có của cột tự tăng
@@ -54,7 +54,7 @@ namespace WindowsFormsApp
             {
                 idsql = 0;
             }
-            ProNo = idsql;
+            ProNo = idsql+1;
             // Tiếp tục xử lý với giá trị idsql đã kiểm tra
 
 

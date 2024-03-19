@@ -203,3 +203,4 @@ D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\import_Xoaytua
 D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\WindowsFormsApp.csproj.CopyComplete
 D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\import_Xoaytua.exe
 D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\import_Xoaytua.pdb
+D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\WindowsFormsApp.csproj.AssemblyReference.cache
