@@ -263,7 +263,7 @@ namespace WindowsFormsApp
                             newRow["Chat"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
                         }
                         //Ry
-                        string combinedPattern = ".*訂單號碼.*|.*ĐÓNG ĐƠN 10.*";
+                        string combinedPattern = ".*訂單號碼.*|.*ĐÓNG ĐƠN.*|.*TỔNG HỢP.*";
 
                         object cellValueRy = worksheet.Cells[row, 9].Value;
                         if (cellValueRy != null && !Regex.IsMatch(cellValueRy.ToString(), combinedPattern))
@@ -278,6 +278,7 @@ namespace WindowsFormsApp
                         }
                         //Size
                         // Xử lý cho cột Seq1
+
                         object cellValueSeq1 = worksheet.Cells[row, 10].Value;
                         if (cellValueSeq1 != null)
                         {
