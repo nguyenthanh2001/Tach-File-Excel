@@ -119,6 +119,7 @@ namespace WindowsFormsApp
                 excelData.Columns.Add("SO_CHUA_PC");
                 excelData.Columns.Add("Don_Vi_San_Xuat");
                 excelData.Columns.Add("Created_Date");
+                excelData.Columns.Add("Row");
                 
                 //
                 //
@@ -127,7 +128,7 @@ namespace WindowsFormsApp
                 // Lặp qua từng sheet trong workbook 
                 foreach (ExcelWorksheet worksheet in workbook.Worksheets)
                 {
-
+                    int currentRow = 0; // Biến đếm hàng hiện tại
                     // Lặp qua từng hàng trong sheet
                     for (int row = 1; row <= worksheet.Dimension.Rows; row++)
                     {
@@ -143,7 +144,8 @@ namespace WindowsFormsApp
 
                         //xu ly pro no
                         object cellValue1 = worksheet.Cells[row, 2].Value;
-                        if (cellValue1 != null && !cellValue1.ToString().Equals("型體名稱\nTÊN GIÀY") && !cellValue1.ToString().Equals("合計：") && !cellValue1.ToString().Equals("型\n預\n計\n生\n產\n時\n間"))
+                       //if (cellValue1 != null && !cellValue1.ToString().Equals("型體名稱\nTÊN GIÀY") && !cellValue1.ToString().Equals("合計：") && !cellValue1.ToString().Equals("型\n預\n計\n生\n產\n時\n間"))
+                        if (cellValue1 != null && !cellValue1.ToString().Equals("型體名稱\nTÊN GIÀY") && !cellValue1.ToString().Equals("型\n預\n計\n生\n產\n時\n間"))
                         {
                             newRow["Ten_Giay"] = worksheet.Cells[row, 2].Value.ToString();
 
@@ -195,6 +197,18 @@ namespace WindowsFormsApp
 
 
 
+                        // Gán giá trị hàng cho cột "Row"
+                        newRow["Row"] = currentRow;
+
+                        // Cập nhật giá trị hàng cho lần lặp tiếp theo
+                        currentRow++;
+
+                        //currentRow = 0;  BANG XOAY TUA  ( MAY )
+                        object cellValuerow = worksheet.Cells[row, 1].Value;
+                        if (cellValuerow != null && cellValuerow.ToString().Equals("BANG XOAY TUA  ( MAY )"))
+                        {
+                            currentRow = 0;
+                        }
 
 
 
@@ -204,6 +218,8 @@ namespace WindowsFormsApp
                             //ProNo = ProNo + identity;
                             //newRow["ProNo"] = ProNo;
                             ProNo++;
+                            
+
                         }
                         // Format ProNo theo quy tắc year + month + 5 số tự tăng
                         string paddedCounter = ProNo.ToString().PadLeft(5, '0');
@@ -835,8 +851,7 @@ namespace WindowsFormsApp
                         object cellValueldvsx = worksheet.Cells[row, 1].Value;
 
                         if (cellValueldvsx != null && Regex.IsMatch(cellValueldvsx.ToString(), pattendvxs)) // && !Regex.IsMatch(cellValueldvsx.ToString(), pattendvxs)
-                        {
-
+                        {                          
                             //newRow["Don_Vi_San_Xuat"] = cellValueldvsx.ToString();
 
                             string donViSanXuat = cellValueldvsx.ToString();
@@ -853,11 +868,13 @@ namespace WindowsFormsApp
                                 string desiredValue = match.Value;
                                 newRow["Don_Vi_San_Xuat"] = match.Value;
                             }
+                            
                         }
                         else
                         {
                             // Xử lý trường hợp khi giá trị của ô là null
                             newRow["Don_Vi_San_Xuat"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
+          
                         }
                         //Created_Date
                         string pattendate = ".*制表日期.*";
@@ -903,7 +920,7 @@ namespace WindowsFormsApp
         private void SaveDataToDatabase(DataTable data)
         {
             // Chuẩn bị truy vấn SQL để chèn dữ liệu vào cơ sở dữ liệu
-            string query = "INSERT INTO BANG_XOAY_TUA (ProNo, Ten_Giay, Dao_Chat, Article, Dang_Fom, Goo, May, Chat, Ry, size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,SO_CHI_LENH,THUC_TE_PC,LUY_TICH_PC,SO_CHUA_PC,Don_Vi_San_Xuat,Created_Date) VALUES (@Value1, @Value3, @Value4, @Value5, @Value6, @Value7, @Value8, @Value9, @Value10, @Value11,@Value12,@Value13,@Value14,@Value15,@Value16,@Value17,@Value18,@Value19,@Value20,@Value21,@Value22,@Value23,@Value24,@Value25,@Value26,@Value27,@Value28,@Value29,@Value30,@Value31,@Value32,@Value33,@Value34,@Value35,@Value36,@Value37,@Value38,@Value39,@Value40,@Value41)";
+            string query = "INSERT INTO BANG_XOAY_TUA (ProNo, Ten_Giay, Dao_Chat, Article, Dang_Fom, Goo, May, Chat, Ry, size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,SO_CHI_LENH,THUC_TE_PC,LUY_TICH_PC,SO_CHUA_PC,Don_Vi_San_Xuat,Created_Date, Row) VALUES (@Value1, @Value3, @Value4, @Value5, @Value6, @Value7, @Value8, @Value9, @Value10, @Value11,@Value12,@Value13,@Value14,@Value15,@Value16,@Value17,@Value18,@Value19,@Value20,@Value21,@Value22,@Value23,@Value24,@Value25,@Value26,@Value27,@Value28,@Value29,@Value30,@Value31,@Value32,@Value33,@Value34,@Value35,@Value36,@Value37,@Value38,@Value39,@Value40,@Value41,@Value42)";
 
             // Lặp qua từng hàng trong DataTable và chèn dữ liệu vào cơ sở dữ liệu
             foreach (DataRow row in data.Rows)
@@ -951,10 +968,10 @@ namespace WindowsFormsApp
             new SqlParameter("@Value38", SqlDbType.VarChar) { Value = row["LUY_TICH_PC"] },
             new SqlParameter("@Value39", SqlDbType.VarChar) { Value = row["SO_CHUA_PC"] },
             new SqlParameter("@Value40", SqlDbType.VarChar) { Value = row["Don_Vi_San_Xuat"] },
-            new SqlParameter("@Value41", SqlDbType.DateTime) { Value = row["Created_Date"] }
+            new SqlParameter("@Value41", SqlDbType.DateTime) { Value = row["Created_Date"] },
+            new SqlParameter("@Value42", SqlDbType.Int) { Value = row["Row"] }
 
 
-            
         };
 
                 // Thêm các tham số cho các cột khác nếu cần thiết 
