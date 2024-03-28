@@ -7,12 +7,12 @@ using Microsoft.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Security.Principal;
 using System.Globalization;
+using System.Threading;
 
 namespace WindowsFormsApp
 {
     public partial class Form1 : Form
     {
-        private Timer timer;
         private DBconnect dbConnect;
         private long ProNo; // Bắt đầu từ 0
         public Form1()
@@ -992,32 +992,49 @@ namespace WindowsFormsApp
             {
                 ProcessExcelFile(defaultPath);
                 // Hiển thị MessageBox
-                MessageBox.Show("Finish", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                //MessageBox.Show("Finish", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 
-                // Tạo và cấu hình Timer
-                timer = new Timer();
-                timer.Interval = 100; // Đặt thời gian đếm là 4 giây (4000 milliseconds)
-                timer.Tick += Timer_Tick; // Đăng ký sự kiện Tick
-                timer.Start(); // Bắt đầu đếm thời gian
+                Thread queryThread = new Thread(() =>
+                {
+                    // Tạo một đối tượng DBconnect
+                    DBconnect dbConnect = new DBconnect();
+
+                    // Tạo một đối tượng SqlCommand
+                    using (SqlCommand cmd = new SqlCommand("exec usp_InsertDataFrom_bang_xoay_tua_To_ProgressTables"))
+                    {
+                        // Đặt thời gian chờ của truy vấn
+                        cmd.CommandTimeout = 600; // 10 phút là 600 giây
+
+                        // Thực thi câu truy vấn bằng phương thức mới
+                        int rowsAffected = dbConnect.ExecuteSqlCommand(cmd);
+
+                        // Hiển thị thông báo khi thực thi thành công
+                        if (rowsAffected > 0)
+                        {
+                            MessageBox.Show("Finish", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                            // Đóng ứng dụng
+                            Application.Exit();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Có lỗi xảy ra khi thực thi câu truy vấn", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        }
+                    }
+                });
+
+                // Khởi động tiểu luồng
+                queryThread.Start();
+
+
             }
             else
             {
                 // Nếu không tìm thấy tệp, hiển thị thông báo
                 //MessageBox.Show("", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 MessageBox.Show("Không tìm thấy tệp Excel filexoaytua_input.xlsx trong thư mục C:\\ERP\\filexoaytua_input", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                timer = new Timer();
-                timer.Interval = 100; // Đặt thời gian đếm là 4 giây (4000 milliseconds)
-                timer.Tick += Timer_Tick; // Đăng ký sự kiện Tick
-                timer.Start(); // Bắt đầu đếm thời gian
             }
         }
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            // Đóng MessageBox khi Timer đếm đủ thời gian
-            timer.Stop(); // Dừng Timer
-            timer.Dispose(); // Giải phóng Timer
-            Application.Exit(); // Đóng ứng dụng
-        }
+
         //
 
 
