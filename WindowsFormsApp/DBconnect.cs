@@ -63,15 +63,41 @@ namespace WindowsFormsApp
     {
         // Chuỗi kết nối đến cơ sở dữ liệu SQL Server
         // Phương thức getter để lấy chuỗi kết nối
+        // Phương thức để giải mã password từ dạng mã hóa
+        // Phương thức để giải mã password từ dạng mã hóa
+        // Phương thức để giải mã password từ dạng mã hóa
+        private string DecryptPassword(string encryptedPassword)
+        {
+            string decryptedPassword = "";
+            int ad_LT = int.Parse(encryptedPassword.Substring(0, 1));
+
+            for (int i = 1; i < encryptedPassword.Length; i++)
+            {
+                char tempChar = encryptedPassword[i];
+                int ASCII_int = Convert.ToInt32(tempChar) - ad_LT;
+                decryptedPassword += Convert.ToString((char)ASCII_int);
+            }
+
+            return decryptedPassword;
+        }
+
+
+
+        // Chuỗi kết nối đến cơ sở dữ liệu SQL Server
+        // Phương thức getter để lấy chuỗi kết nối
+        // Chuỗi kết nối đến cơ sở dữ liệu SQL Server
+        // Phương thức getter để lấy chuỗi kết nối
         public string connectionString
         {
             get
             {
-                // Thay thế giá trị chuỗi kết nối bằng các giá trị từ tệp cấu hình
+                // Thay thế giá trị chuỗi kết nối bằng các giá trị từ tệp cấu hình, và giải mã password
                 ConfigValues config = ConfigReader.ReadConfig(@"C:\ERP\ComName2.ini");
-                return $"Server={config.Server};Database={config.Database};User Id={config.UserId};Password={config.Password};TrustServerCertificate=true;";
+                string decryptedPassword = DecryptPassword(config.Password);
+                return $"Server={config.Server};Database={config.Database};User Id={config.UserId};Password={decryptedPassword};TrustServerCertificate=true;";
             }
         }
+
 
         // Phương thức ExecuteQuery thực hiện truy vấn SQL và trả về một DataTable chứa kết quả
         public DataTable ExecuteQuery(string query, SqlParameter[] parameters = null)
