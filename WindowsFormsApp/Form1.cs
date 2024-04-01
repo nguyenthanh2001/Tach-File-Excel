@@ -1000,7 +1000,7 @@ namespace WindowsFormsApp
                     DBconnect dbConnect = new DBconnect();
 
                     // Tạo một đối tượng SqlCommand
-                    using (SqlCommand cmd = new SqlCommand("exec usp_InsertDataFrom_bang_xoay_tua_To_ProgressTables"))
+                    using (SqlCommand cmd = new SqlCommand("exec usp_plan_n223_Insert_Xoay_Tua_To_Progress"))
                     {
                         // Đặt thời gian chờ của truy vấn
                         cmd.CommandTimeout = 600; // 10 phút là 600 giây
