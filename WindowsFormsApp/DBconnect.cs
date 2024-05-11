@@ -2,6 +2,7 @@
 using System.Data; // Sử dụng namespace System.Data để làm việc với các đối tượng dữ liệu
 using System;
 using System.IO;
+using System.Windows.Forms;
 namespace WindowsFormsApp
 {
     internal class ConfigReader
@@ -135,9 +136,19 @@ namespace WindowsFormsApp
         {
             using (SqlConnection connection = new SqlConnection(connectionString)) // Sử dụng SqlConnection để kết nối đến cơ sở dữ liệu
             {
-                cmd.Connection = connection; // Gán kết nối cho đối tượng SqlCommand
-                connection.Open(); // Mở kết nối đến cơ sở dữ liệu
-                return cmd.ExecuteNonQuery(); // Thực thi truy vấn và trả về số hàng bị ảnh hưởng
+                try
+                {
+                    cmd.Connection = connection;
+                    connection.Open();
+                    return cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    // Hiển thị thông báo lỗi
+                    MessageBox.Show("Đã xảy ra lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Trả về -1 hoặc một giá trị thích hợp để biểu thị lỗi
+                    return -1;
+                }
             }
         }
 

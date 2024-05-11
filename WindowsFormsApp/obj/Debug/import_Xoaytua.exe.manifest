@@ -103,14 +103,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="import_Xoaytua.exe" size="48064">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="import_Xoaytua.exe" size="53184">
       <assemblyIdentity name="import_Xoaytua" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>jZgm3hESJIQJ2Gzuq+NsvQS1vYra+KEIIQC062ob5Wk=</dsig:DigestValue>
+        <dsig:DigestValue>oS2ql/+eaJ1vqX/hR9FQQGKGwHlpWNw0IM91ya4GjV0=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

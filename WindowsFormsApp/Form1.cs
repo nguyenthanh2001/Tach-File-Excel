@@ -15,12 +15,13 @@ namespace WindowsFormsApp
     {
         private DBconnect dbConnect;
         private long ProNo; // Bắt đầu từ 0
+        string username ="Error";
         public Form1()
         {
             InitializeComponent();
             dbConnect = new DBconnect(); // Khởi tạo kết nối cơ sở dữ liệu
-
-            this.Text = "Tách sheet từ tệp Excel";
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Text = "IMPORT";
 
         }
         //
@@ -120,7 +121,8 @@ namespace WindowsFormsApp
                 excelData.Columns.Add("Don_Vi_San_Xuat");
                 excelData.Columns.Add("Created_Date");
                 excelData.Columns.Add("Row");
-                
+                excelData.Columns.Add("UserID");
+
                 //
                 //
                 // Lấy giá trị năm và tháng từ thời gian hiện tại
@@ -135,9 +137,9 @@ namespace WindowsFormsApp
                         // Tạo một hàng mới trong DataTable excelData
                         DataRow newRow = excelData.NewRow();
 
-                        
-                        //xu ly pro no
-                        
+
+                        //xu ly UserID
+                        newRow["UserID"] = username;
 
                         // Gán giá trị ProNo cho newRow["ProNo"]
                         newRow["ProNo"] = ProNo;
@@ -855,20 +857,23 @@ namespace WindowsFormsApp
                             //newRow["Don_Vi_San_Xuat"] = cellValueldvsx.ToString();
 
                             string donViSanXuat = cellValueldvsx.ToString();
+                            newRow["Don_Vi_San_Xuat"] = donViSanXuat;
 
                             // Biểu thức chính quy để tìm chuỗi "B1-L" hoặc "B2-L" theo sau bởi các chữ số
                             string pattern = @"B\d+-L\d+";
-
+                            
                             // Sử dụng Regex để tìm chuỗi "B1-L15" trong biến donViSanXuat
                             Match match = Regex.Match(donViSanXuat, pattern);
-
+                            /*
                             if (match.Success)
                             {
                                 // Lấy giá trị từ kết quả tìm kiếm
                                 string desiredValue = match.Value;
                                 newRow["Don_Vi_San_Xuat"] = match.Value;
                             }
-                            
+                            */
+                            string desiredValue = match.Value;
+                            newRow["Don_Vi_San_Xuat"] = match.Value;
                         }
                         else
                         {
@@ -920,7 +925,7 @@ namespace WindowsFormsApp
         private void SaveDataToDatabase(DataTable data)
         {
             // Chuẩn bị truy vấn SQL để chèn dữ liệu vào cơ sở dữ liệu
-            string query = "INSERT INTO BANG_XOAY_TUA (ProNo, Ten_Giay, Dao_Chat, Article, Dang_Fom, Goo, May, Chat, Ry, size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,SO_CHI_LENH,THUC_TE_PC,LUY_TICH_PC,SO_CHUA_PC,Don_Vi_San_Xuat,Created_Date, Row) VALUES (@Value1, @Value3, @Value4, @Value5, @Value6, @Value7, @Value8, @Value9, @Value10, @Value11,@Value12,@Value13,@Value14,@Value15,@Value16,@Value17,@Value18,@Value19,@Value20,@Value21,@Value22,@Value23,@Value24,@Value25,@Value26,@Value27,@Value28,@Value29,@Value30,@Value31,@Value32,@Value33,@Value34,@Value35,@Value36,@Value37,@Value38,@Value39,@Value40,@Value41,@Value42)";
+            string query = "INSERT INTO BANG_XOAY_TUA (ProNo, Ten_Giay, Dao_Chat, Article, Dang_Fom, Goo, May, Chat, Ry, size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,SO_CHI_LENH,THUC_TE_PC,LUY_TICH_PC,SO_CHUA_PC,Don_Vi_San_Xuat,Created_Date, Row, UserID) VALUES (@Value1, @Value3, @Value4, @Value5, @Value6, @Value7, @Value8, @Value9, @Value10, @Value11,@Value12,@Value13,@Value14,@Value15,@Value16,@Value17,@Value18,@Value19,@Value20,@Value21,@Value22,@Value23,@Value24,@Value25,@Value26,@Value27,@Value28,@Value29,@Value30,@Value31,@Value32,@Value33,@Value34,@Value35,@Value36,@Value37,@Value38,@Value39,@Value40,@Value41,@Value42,@Value43)";
 
             // Lặp qua từng hàng trong DataTable và chèn dữ liệu vào cơ sở dữ liệu
             foreach (DataRow row in data.Rows)
@@ -969,7 +974,8 @@ namespace WindowsFormsApp
             new SqlParameter("@Value39", SqlDbType.VarChar) { Value = row["SO_CHUA_PC"] },
             new SqlParameter("@Value40", SqlDbType.VarChar) { Value = row["Don_Vi_San_Xuat"] },
             new SqlParameter("@Value41", SqlDbType.DateTime) { Value = row["Created_Date"] },
-            new SqlParameter("@Value42", SqlDbType.Int) { Value = row["Row"] }
+            new SqlParameter("@Value42", SqlDbType.Int) { Value = row["Row"] },
+            new SqlParameter("@Value43", SqlDbType.VarChar) { Value = row["UserID"] }
 
 
         };
@@ -984,55 +990,83 @@ namespace WindowsFormsApp
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Mặc định đường dẫn vào thư mục C:\ và thư mục ERP và tên tệp Excel "filexoaytua_input.xlsx"
-            string defaultPath = @"C:\ERPP\filexoaytua_input.xlsx";
-
-            // Kiểm tra sự tồn tại của tệp Excel
-            if (File.Exists(defaultPath))
+            using (LoginForm loginForm = new LoginForm())
             {
-                ProcessExcelFile(defaultPath);
-                // Hiển thị MessageBox
-                //MessageBox.Show("Finish", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-
-                Thread queryThread = new Thread(() =>
+                if (loginForm.ShowDialog() == DialogResult.OK)
                 {
-                    // Tạo một đối tượng DBconnect
-                    DBconnect dbConnect = new DBconnect();
-
-                    // Tạo một đối tượng SqlCommand
-                    using (SqlCommand cmd = new SqlCommand("exec usp_plan_n223_Insert_Xoay_Tua_To_Progress"))
+                    // Lấy giá trị username từ LoginForm
+                    username = loginForm.Username;
+                    // Tiếp tục thực hiện công việc khi đăng nhập thành công
+                    // Đoạn code ở đây
+                    try
                     {
-                        // Đặt thời gian chờ của truy vấn
-                        cmd.CommandTimeout = 600; // 10 phút là 600 giây
-
-                        // Thực thi câu truy vấn bằng phương thức mới
-                        int rowsAffected = dbConnect.ExecuteSqlCommand(cmd);
-
-                        // Hiển thị thông báo khi thực thi thành công
-                        if (rowsAffected > 0)
+                        // Mặc định đường dẫn vào thư mục C:\ và thư mục ERP và tên tệp Excel "filexoaytua_input.xlsx"
+                        //string defaultPath = @"C:\ERPP\filexoaytua_input_chuan.xlsx";
+                        string defaultPath = @"C:\ERP\filexoaytua_input.xlsx";
+                        // Kiểm tra sự tồn tại của tệp Excel
+                        if (File.Exists(defaultPath))
                         {
-                            MessageBox.Show("Finish", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-                            // Đóng ứng dụng
-                            Application.Exit();
+                            ProcessExcelFile(defaultPath);
+                            // Hiển thị MessageBox
+                            //MessageBox.Show("Finish", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+
+                            Thread queryThread = new Thread(() =>
+                            {
+                                // Tạo một đối tượng DBconnect
+                                DBconnect dbConnect = new DBconnect();
+
+                                // Tạo một đối tượng SqlCommand
+                                using (SqlCommand cmd = new SqlCommand("exec usp_plan_n223_Insert_Xoay_Tua_To_Progress"))
+                                {
+                                    // Đặt thời gian chờ của truy vấn
+                                    cmd.CommandTimeout = 6000; // 10 phút là 600 giây
+
+                                    // Thực thi câu truy vấn bằng phương thức mới
+                                    int rowsAffected = dbConnect.ExecuteSqlCommand(cmd);
+
+                                    // Hiển thị thông báo khi thực thi thành công
+                                    if (rowsAffected > 0)
+                                    {
+                                        MessageBox.Show("Finish", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                                        // Đóng ứng dụng
+                                        Application.Exit();
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Có lỗi xảy ra khi thực thi câu truy vấn", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                                        Application.Exit();
+                                    }
+                                }
+                            });
+
+                            // Khởi động tiểu luồng
+                            queryThread.Start();
+
+
                         }
                         else
                         {
-                            MessageBox.Show("Có lỗi xảy ra khi thực thi câu truy vấn", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                            // Nếu không tìm thấy tệp, hiển thị thông báo
+                            //MessageBox.Show("", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("Không tìm thấy tệp Excel filexoaytua_input.xlsx trong thư mục C:\\ERP\\filexoaytua_input", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+
+                            Application.Exit();
                         }
                     }
-                });
-
-                // Khởi động tiểu luồng
-                queryThread.Start();
-
-
+                    catch (Exception ex)
+                    {
+                        // Xử lý lỗi và hiển thị thông báo
+                        MessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
+                        Application.Exit();
+                    }
+                }
+                else
+                {
+                    // Người dùng đã hủy đăng nhập hoặc đăng nhập không thành công, 
+                    Application.Exit();
+                }
             }
-            else
-            {
-                // Nếu không tìm thấy tệp, hiển thị thông báo
-                //MessageBox.Show("", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                MessageBox.Show("Không tìm thấy tệp Excel filexoaytua_input.xlsx trong thư mục C:\\ERP\\filexoaytua_input", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
-            }
+            
         }
 
         //
