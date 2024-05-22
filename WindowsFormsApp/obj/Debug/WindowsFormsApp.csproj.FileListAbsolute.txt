@@ -204,3 +204,4 @@ D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\WindowsFormsAp
 D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\import_Xoaytua.exe
 D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\import_Xoaytua.pdb
 D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\WindowsFormsApp.LoginForm.resources
+D:\WindowForms\Excel\PJ\WindowsFormsApp\WindowsFormsApp\obj\Debug\WindowsFormsApp.csproj.AssemblyReference.cache

@@ -864,22 +864,56 @@ namespace WindowsFormsApp
                             
                             // Sử dụng Regex để tìm chuỗi "B1-L15" trong biến donViSanXuat
                             Match match = Regex.Match(donViSanXuat, pattern);
-                            /*
+                            
                             if (match.Success)
                             {
                                 // Lấy giá trị từ kết quả tìm kiếm
                                 string desiredValue = match.Value;
                                 newRow["Don_Vi_San_Xuat"] = match.Value;
                             }
-                            */
-                            string desiredValue = match.Value;
-                            newRow["Don_Vi_San_Xuat"] = match.Value;
+                            else
+                            {
+                                TextBox textBox = new TextBox
+                                {
+                                    Text = donViSanXuat,
+                                    Multiline = true,
+                                    ReadOnly = true,
+                                    Dock = DockStyle.Fill,
+                                    ScrollBars = ScrollBars.Both,
+                                    WordWrap = true
+                                };
+
+                                // Tạo một Form để chứa TextBox
+                                Form form = new Form
+                                {
+                                    Text = "Đơn vị sản xuất bị bỏ trống B?-L?: ",
+                                    Width = 400,
+                                    Height = 200,
+                                    StartPosition = FormStartPosition.CenterScreen
+                                };
+
+                                // Thêm TextBox vào Form
+                                form.Controls.Add(textBox);
+
+                                // Đăng ký sự kiện Click để chọn tất cả văn bản trong TextBox
+                                //textBox.Click += (sender, e) => textBox.SelectAll();
+
+                                // Hiển thị Form
+                                form.ShowDialog();
+
+
+
+                                dbConnect.ExecuteQuery(@"delete BANG_XOAY_TUA");
+                                Application.Exit();
+                                return;
+                            }
+                            //string desiredValue = match.Value;
+                            //newRow["Don_Vi_San_Xuat"] = match.Value;
                         }
                         else
                         {
                             // Xử lý trường hợp khi giá trị của ô là null
-                            newRow["Don_Vi_San_Xuat"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp
-          
+                            newRow["Don_Vi_San_Xuat"] = null; // hoặc bất kỳ giá trị mặc định nào phù hợp                          
                         }
                         //Created_Date
                         string pattendate = ".*制表日期.*";
@@ -1001,7 +1035,10 @@ namespace WindowsFormsApp
                     try
                     {
                         // Mặc định đường dẫn vào thư mục C:\ và thư mục ERP và tên tệp Excel "filexoaytua_input.xlsx"
-                        //string defaultPath = @"C:\ERPP\filexoaytua_input_chuan.xlsx";
+                        //string defaultPath = @"C:\ERPP\filexoaytua_input_chuan1.xlsx";
+                        //string defaultPath = @"C:\ERPP\filexoaytua_input.xlsx";
+
+
                         string defaultPath = @"C:\ERP\filexoaytua_input.xlsx";
                         // Kiểm tra sự tồn tại của tệp Excel
                         if (File.Exists(defaultPath))
@@ -1010,8 +1047,13 @@ namespace WindowsFormsApp
                             // Hiển thị MessageBox
                             //MessageBox.Show("Finish", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
 
-                            Thread queryThread = new Thread(() =>
-                            {
+
+                            //check size
+                            CheckSize();
+                            //check giờ tua
+                            Check_Gio_Tua();
+                                //chay procedure
+
                                 // Tạo một đối tượng DBconnect
                                 DBconnect dbConnect = new DBconnect();
 
@@ -1037,10 +1079,7 @@ namespace WindowsFormsApp
                                         Application.Exit();
                                     }
                                 }
-                            });
-
-                            // Khởi động tiểu luồng
-                            queryThread.Start();
+ 
 
 
                         }
@@ -1070,6 +1109,1437 @@ namespace WindowsFormsApp
         }
 
         //
+        /*
+        public static void CheckSize()
+        {
+            DBconnect dbConnect = new DBconnect();
+            string sql = @"create table #temp_checksize1(
+	id int,
+	row int,
+	prono varchar(20),
+	donvisanxuat varchar(255),
+	ry varchar(255),
+	tengiay varchar(255),
+	dangfom varchar(255),
+	qty int,
+	size1 DECIMAL(15,1),
+    size2 DECIMAL(15,1),
+    size3 DECIMAL(15,1),
+    size4 DECIMAL(15,1),
+    size5 DECIMAL(15,1),
+    size6 DECIMAL(15,1),
+    size7 DECIMAL(15,1),
+    size8 DECIMAL(15,1),
+    size9 DECIMAL(15,1),
+    size10 DECIMAL(15,1),
+    size11 DECIMAL(15,1),
+    size12 DECIMAL(15,1),
+    size13 DECIMAL(15,1),
+    size14 DECIMAL(15,1),
+    size15 DECIMAL(15,1),
+    size16 DECIMAL(15,1),
+    size17 DECIMAL(15,1),
+    size18 DECIMAL(15,1),
+    size19 DECIMAL(15,1),
+    size20 DECIMAL(15,1),
+    size21 DECIMAL(15,1),
+    size22 DECIMAL(15,1),
+    size23 DECIMAL(15,1),
+    size24 DECIMAL(15,1),
+    size25 DECIMAL(15,1),
+	UserID varchar(20)
+	)
+;
+--
+-- them du lieu vao bang #temp_checksize1
+INSERT INTO #temp_checksize1 (ProNo,row,donvisanxuat,ry,tengiay,dangfom, size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,UserID)
+select ProNo,row,Don_Vi_San_Xuat,ry,Ten_Giay,Dang_Fom,size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,UserID
+from bang_xoay_tua
+ORDER BY ProNo, row ASC
+;
+--update donvisanxuat bang #temp_checksize1
+update #temp_checksize1
+set donvisanxuat = bang_xoay_tua.Don_Vi_San_Xuat
+from #temp_checksize1
+join bang_xoay_tua on bang_xoay_tua.prono=#temp_checksize1.prono
+;
+-- update dangfom tu lastname cua bang lastnom cho bang #temp_checksize1
+update #temp_checksize1
+set dangfom = LastNoM.LastName
+from #temp_checksize1
+join bang_xoay_tua on bang_xoay_tua.prono=#temp_checksize1.prono
+join LastNoM on LastNoM.LastNo=bang_xoay_tua.Dang_Fom
+;
+--delete cac 2 hang dau de cat size
+delete #temp_checksize1
+where row in (0,1)
+;
+Create Table #temp_checksize2(
+	id int,
+	row int,
+	prono varchar(20),
+	dvsx varchar(255),
+	ry varchar(255),
+	dangfom varchar(255),
+	size DECIMAL(15,1),
+	qty int,
+	UserID varchar(20)
+)
+;
+--them size theo thu tu 1-25 cot size = 1 ma prono
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, donvisanxuat, ry, dangfom,UserID, Size
+FROM (
+    SELECT row, prono, donvisanxuat, ry, dangfom,UserID,Size,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM #temp_checksize1
+    UNPIVOT (
+        Size FOR SizeNumber IN (
+            size1, size2, size3, size4, size5, 
+            size6, size7, size8, size9, size10,
+            size11, size12, size13, size14, size15,
+            size16, size17, size18, size19, size20,
+            size21, size22, size23, size24, size25
+        )
+    ) AS unpvt
+) AS NumberedRows
+WHERE RowNum <= 25
+ORDER BY prono, donvisanxuat;
+;
+--lap lai bang #temp_checksize2 de mo rong prono: VD prono1 co 4 lenh tuong duong 25x4=100 hang prono1
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+------------------------------------------------------------
+CREATE TABLE #temp_checksize3 (
+    ry VARCHAR(255),
+    prono VARCHAR(255),
+	id int,
+)
+;
+--them nhung lenh co so hang nho hon so hang gap dieu kien '合計：'-->trong file excel thi se add vo bang #tempdata
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY #temp_checksize1.prono ORDER BY #temp_checksize1.[row]) AS RowNumber
+    FROM #temp_checksize1
+)
+INSERT INTO #temp_checksize3 (ry, prono)
+SELECT NumberedRows.ry, NumberedRows.prono
+FROM NumberedRows
+INNER JOIN (
+    SELECT MAX(#temp_checksize1.[row]) AS max_row, #temp_checksize1.prono
+    FROM #temp_checksize1
+    WHERE tengiay = '合計：'
+    GROUP BY #temp_checksize1.prono
+) AS MaxRows ON NumberedRows.prono = MaxRows.prono
+WHERE NumberedRows.RowNumber <= MaxRows.max_row;
+
+;
+--update id 1 - ... #temp_checksize2  1 id tuong duong 25 size = 25 hang
+WITH CTE AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS row_num,
+           (ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) - 1) / 25 + 1 AS group_num
+    FROM #temp_checksize2
+)
+UPDATE CTE
+SET id = group_num
+;
+delete #temp_checksize3 where ry is null
+;
+--update id 1 - ... #TempData danh so id cho bang #tempdata
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM #temp_checksize3
+)
+UPDATE NumberedRows
+SET ID = RowNum
+;
+-- so sanh neu prono va id bang nhau them them vao (id trong bang #tempdata la nhung hang nam truoc ky tu '合計：' trong excel) --> thoa man dieu kien
+update #temp_checksize2
+ set ry = #temp_checksize3.ry
+ from #temp_checksize3
+ where #temp_checksize3.id=#temp_checksize2.id and #temp_checksize3.prono=#temp_checksize2.prono
+;
+--xoa ry null nhung hang bi du thua.
+delete #temp_checksize2 where ry is null
+;
+-- Cat hang cho bang voi hang trong bang #tempdata
+delete #temp_checksize1 where ry is null
+;
+--update id trong bang #temp_checksize1
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM #temp_checksize1
+)
+UPDATE NumberedRows
+SET ID = RowNum
+;
+--update size
+UPDATE #temp_checksize2
+SET qty = 
+    CASE 
+        WHEN #temp_checksize2.size = 3.0 THEN #temp_checksize1.size1
+        WHEN #temp_checksize2.size = 3.5 THEN #temp_checksize1.size2
+        WHEN #temp_checksize2.size = 4.0 THEN #temp_checksize1.size3
+		WHEN #temp_checksize2.size = 4.5 THEN #temp_checksize1.size4
+		WHEN #temp_checksize2.size = 5.0 THEN #temp_checksize1.size5
+		WHEN #temp_checksize2.size = 5.5 THEN #temp_checksize1.size6
+		WHEN #temp_checksize2.size = 6.0 THEN #temp_checksize1.size7
+		WHEN #temp_checksize2.size = 6.5 THEN #temp_checksize1.size8
+		WHEN #temp_checksize2.size = 7.0 THEN #temp_checksize1.size9
+		WHEN #temp_checksize2.size = 7.5 THEN #temp_checksize1.size10
+		WHEN #temp_checksize2.size = 8.0 THEN #temp_checksize1.size11
+		WHEN #temp_checksize2.size = 8.5 THEN #temp_checksize1.size12
+		WHEN #temp_checksize2.size = 9.0 THEN #temp_checksize1.size13
+		WHEN #temp_checksize2.size = 9.5 THEN #temp_checksize1.size14
+		WHEN #temp_checksize2.size = 10.0 THEN #temp_checksize1.size15
+		WHEN #temp_checksize2.size = 10.5 THEN #temp_checksize1.size16
+		WHEN #temp_checksize2.size = 11.0 THEN #temp_checksize1.size17
+		WHEN #temp_checksize2.size = 11.5 THEN #temp_checksize1.size18
+		WHEN #temp_checksize2.size = 12.0 THEN #temp_checksize1.size19
+		WHEN #temp_checksize2.size = 12.5 THEN #temp_checksize1.size20
+		WHEN #temp_checksize2.size = 13.0 THEN #temp_checksize1.size21
+		WHEN #temp_checksize2.size = 13.5 THEN #temp_checksize1.size22
+		WHEN #temp_checksize2.size = 14.0 THEN #temp_checksize1.size23
+		WHEN #temp_checksize2.size = 14.5 THEN #temp_checksize1.size24
+		WHEN #temp_checksize2.size = 15.0 THEN #temp_checksize1.size25
+    END
+FROM #temp_checksize2
+JOIN #temp_checksize1 ON #temp_checksize1.prono = #temp_checksize2.prono AND #temp_checksize1.id = #temp_checksize2.id;
+;
+--xoa nhung size co qty la null
+Delete from #temp_checksize2
+where qty is null
+;
+--xoa nhung hang co ca 3 cot bi trung lap va giu lai 1 cot
+WITH cte AS (
+  SELECT dangfom, ry, size, ROW_NUMBER() OVER (PARTITION BY dangfom, ry, size ORDER BY (SELECT NULL)) AS rn
+  FROM #temp_checksize2
+)
+DELETE FROM cte
+WHERE rn > 1;
+;
+ALTER TABLE #temp_checksize2
+ALTER COLUMN size VARCHAR(20)
+;
+UPDATE #temp_checksize2
+SET size = 
+    CASE 
+        WHEN CHARINDEX('.', CAST(size AS VARCHAR(20))) = 2 AND RIGHT(CAST(size AS VARCHAR(20)), 2) = '.0' THEN '0' + LEFT(CAST(size AS VARCHAR(20)), 1)
+        WHEN CHARINDEX('.', CAST(size AS VARCHAR(20))) = 2 THEN '0' + CAST(size AS VARCHAR(20))
+        WHEN CHARINDEX('.', CAST(size AS VARCHAR(20))) = 3 AND RIGHT(CAST(size AS VARCHAR(20)), 2) = '.0' THEN LEFT(CAST(size AS VARCHAR(20)), 2)
+        ELSE CAST(size AS VARCHAR(20))
+    END
+WHERE size IS NOT NULL
+;
+delete #temp_checksize2 where qty=0
+;
+-- Tạo một bảng tạm để lưu kết quả so sánh
+CREATE TABLE #MismatchRy(
+    ry VARCHAR(255),
+    CountInTemptableas2 INT,
+    CountInDdzls INT
+);
+
+-- Chèn vào bảng tạm các giá trị ry có số lượng khác nhau giữa hai bảng
+INSERT INTO #MismatchRy(ry, CountInTemptableas2, CountInDdzls)
+SELECT t1.ry, t1.CountInTemptableas2, t2.CountInDdzls
+FROM (
+    SELECT ry, COUNT(*) AS CountInTemptableas2
+    FROM #temp_checksize2
+    GROUP BY ry
+) AS t1
+LEFT JOIN (
+    SELECT DDBH AS ry, COUNT(*) AS CountInDdzls
+    FROM ddzls
+    GROUP BY DDBH
+) AS t2
+ON t1.ry = t2.ry
+WHERE t1.CountInTemptableas2 <> t2.CountInDdzls
+;
+SELECT COUNT(*) AS InvalidSizeCount
+    FROM #MismatchRy
+;
+Drop table #temp_checksize1
+;
+Drop table #temp_checksize2
+;
+drop table #temp_checksize3
+;
+drop table #MismatchRy
+;
+delete BANG_XOAY_TUA";
+
+            try
+            {
+                int invalidSizeCount = dbConnect.ExecuteScalarInt(sql);
+
+                if (invalidSizeCount > 0)
+                {
+                    MessageBox.Show("Thông báo lỗi: Có giá trị size không hợp lệ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (FormatException ex)
+            {
+                MessageBox.Show("Đã xảy ra lỗi định dạng khi thực hiện kiểm tra kích thước size: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Đã xảy ra lỗi khi thực hiện kiểm tra kích thước size: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        */
+        //
+        public static void CheckSize()
+        {
+            DBconnect dbConnect = new DBconnect();
+            string sql = @"
+update a
+set a.Don_Vi_San_Xuat = b.Don_Vi_San_Xuat
+from BANG_XOAY_TUA a
+join BANG_XOAY_TUA b on a.ProNo=b.ProNo
+--where a.Don_Vi_San_Xuat is null and b.Don_Vi_San_Xuat is not null
+where (a.Don_Vi_San_Xuat is null) or (LEN(LTRIM(RTRIM(a.Don_Vi_San_Xuat))) = 0) and (LEN(LTRIM(RTRIM(b.Don_Vi_San_Xuat))) > 0)
+IF OBJECT_ID('#temp_checksize1', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #temp_checksize1;
+END
+
+IF OBJECT_ID('#temp_checksize2', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #temp_checksize2;
+END
+
+IF OBJECT_ID('#temp_checksize3', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #temp_checksize3;
+END
+
+IF OBJECT_ID('#temp_checksize4', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #temp_checksize4;
+END
+create table #temp_checksize1(
+	id int,
+	row int,
+	prono varchar(20),
+	donvisanxuat varchar(255),
+	ry varchar(255),
+	tengiay varchar(255),
+	dangfom varchar(255),
+	qty int,
+	size1 DECIMAL(15,1),
+    size2 DECIMAL(15,1),
+    size3 DECIMAL(15,1),
+    size4 DECIMAL(15,1),
+    size5 DECIMAL(15,1),
+    size6 DECIMAL(15,1),
+    size7 DECIMAL(15,1),
+    size8 DECIMAL(15,1),
+    size9 DECIMAL(15,1),
+    size10 DECIMAL(15,1),
+    size11 DECIMAL(15,1),
+    size12 DECIMAL(15,1),
+    size13 DECIMAL(15,1),
+    size14 DECIMAL(15,1),
+    size15 DECIMAL(15,1),
+    size16 DECIMAL(15,1),
+    size17 DECIMAL(15,1),
+    size18 DECIMAL(15,1),
+    size19 DECIMAL(15,1),
+    size20 DECIMAL(15,1),
+    size21 DECIMAL(15,1),
+    size22 DECIMAL(15,1),
+    size23 DECIMAL(15,1),
+    size24 DECIMAL(15,1),
+    size25 DECIMAL(15,1),
+	UserID varchar(20)
+	)
+;
+--
+-- them du lieu vao bang #temp_checksize1
+INSERT INTO #temp_checksize1 (ProNo,row,donvisanxuat,ry,tengiay,dangfom, size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,UserID)
+select ProNo,row,Don_Vi_San_Xuat,ry,Ten_Giay,Dang_Fom,size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,UserID
+from bang_xoay_tua
+ORDER BY ProNo, row ASC
+;
+--update donvisanxuat bang #temp_checksize1
+update #temp_checksize1
+set donvisanxuat = bang_xoay_tua.Don_Vi_San_Xuat
+from #temp_checksize1
+join bang_xoay_tua on bang_xoay_tua.prono=#temp_checksize1.prono
+;
+-- update dangfom tu lastname cua bang lastnom cho bang #temp_checksize1
+update #temp_checksize1
+set dangfom = LastNoM.LastName
+from #temp_checksize1
+join bang_xoay_tua on bang_xoay_tua.prono=#temp_checksize1.prono
+join LastNoM on LastNoM.LastNo=bang_xoay_tua.Dang_Fom
+;
+--delete cac 2 hang dau de cat size
+delete #temp_checksize1
+where row in (0,1)
+;
+Create Table #temp_checksize2(
+	id int,
+	row int,
+	prono varchar(20),
+	dvsx varchar(255),
+	ry varchar(255),
+	dangfom varchar(255),
+	size DECIMAL(15,1),
+	qty int,
+	UserID varchar(20)
+)
+;
+--them size theo thu tu 1-25 cot size = 1 ma prono
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, donvisanxuat, ry, dangfom,UserID, Size
+FROM (
+    SELECT row, prono, donvisanxuat, ry, dangfom,UserID,Size,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM #temp_checksize1
+    UNPIVOT (
+        Size FOR SizeNumber IN (
+            size1, size2, size3, size4, size5, 
+            size6, size7, size8, size9, size10,
+            size11, size12, size13, size14, size15,
+            size16, size17, size18, size19, size20,
+            size21, size22, size23, size24, size25
+        )
+    ) AS unpvt
+) AS NumberedRows
+WHERE RowNum <= 25
+ORDER BY prono, donvisanxuat;
+;
+--lap lai bang #temp_checksize2 de mo rong prono: VD prono1 co 4 lenh tuong duong 25x4=100 hang prono1
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+INSERT INTO #temp_checksize2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM #temp_checksize2;
+;
+------------------------------------------------------------
+CREATE TABLE #temp_checksize3 (
+    ry VARCHAR(255),
+    prono VARCHAR(255),
+	id int,
+)
+;
+--them nhung lenh co so hang nho hon so hang gap dieu kien '合計：'-->trong file excel thi se add vo bang #tempdata
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY #temp_checksize1.prono ORDER BY #temp_checksize1.[row]) AS RowNumber
+    FROM #temp_checksize1
+)
+INSERT INTO #temp_checksize3 (ry, prono)
+SELECT NumberedRows.ry, NumberedRows.prono
+FROM NumberedRows
+INNER JOIN (
+    SELECT MAX(#temp_checksize1.[row]) AS max_row, #temp_checksize1.prono
+    FROM #temp_checksize1
+    WHERE tengiay = '合計：'
+    GROUP BY #temp_checksize1.prono
+) AS MaxRows ON NumberedRows.prono = MaxRows.prono
+WHERE NumberedRows.RowNumber <= MaxRows.max_row;
+
+;
+--update id 1 - ... #temp_checksize2  1 id tuong duong 25 size = 25 hang
+WITH CTE AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS row_num,
+           (ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) - 1) / 25 + 1 AS group_num
+    FROM #temp_checksize2
+)
+UPDATE CTE
+SET id = group_num
+;
+delete #temp_checksize3 where ry is null
+;
+--update id 1 - ... #TempData danh so id cho bang #tempdata
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM #temp_checksize3
+)
+UPDATE NumberedRows
+SET ID = RowNum
+;
+-- so sanh neu prono va id bang nhau them them vao (id trong bang #tempdata la nhung hang nam truoc ky tu '合計：' trong excel) --> thoa man dieu kien
+update #temp_checksize2
+ set ry = #temp_checksize3.ry
+ from #temp_checksize3
+ where #temp_checksize3.id=#temp_checksize2.id and #temp_checksize3.prono=#temp_checksize2.prono
+;
+--xoa ry null nhung hang bi du thua.
+delete #temp_checksize2 where ry is null
+;
+-- Cat hang cho bang voi hang trong bang #tempdata
+delete #temp_checksize1 where ry is null
+;
+--update id trong bang #temp_checksize1
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM #temp_checksize1
+)
+UPDATE NumberedRows
+SET ID = RowNum
+;
+--update size
+UPDATE #temp_checksize2
+SET qty = 
+    CASE 
+        WHEN #temp_checksize2.size = 3.0 THEN #temp_checksize1.size1
+        WHEN #temp_checksize2.size = 3.5 THEN #temp_checksize1.size2
+        WHEN #temp_checksize2.size = 4.0 THEN #temp_checksize1.size3
+		WHEN #temp_checksize2.size = 4.5 THEN #temp_checksize1.size4
+		WHEN #temp_checksize2.size = 5.0 THEN #temp_checksize1.size5
+		WHEN #temp_checksize2.size = 5.5 THEN #temp_checksize1.size6
+		WHEN #temp_checksize2.size = 6.0 THEN #temp_checksize1.size7
+		WHEN #temp_checksize2.size = 6.5 THEN #temp_checksize1.size8
+		WHEN #temp_checksize2.size = 7.0 THEN #temp_checksize1.size9
+		WHEN #temp_checksize2.size = 7.5 THEN #temp_checksize1.size10
+		WHEN #temp_checksize2.size = 8.0 THEN #temp_checksize1.size11
+		WHEN #temp_checksize2.size = 8.5 THEN #temp_checksize1.size12
+		WHEN #temp_checksize2.size = 9.0 THEN #temp_checksize1.size13
+		WHEN #temp_checksize2.size = 9.5 THEN #temp_checksize1.size14
+		WHEN #temp_checksize2.size = 10.0 THEN #temp_checksize1.size15
+		WHEN #temp_checksize2.size = 10.5 THEN #temp_checksize1.size16
+		WHEN #temp_checksize2.size = 11.0 THEN #temp_checksize1.size17
+		WHEN #temp_checksize2.size = 11.5 THEN #temp_checksize1.size18
+		WHEN #temp_checksize2.size = 12.0 THEN #temp_checksize1.size19
+		WHEN #temp_checksize2.size = 12.5 THEN #temp_checksize1.size20
+		WHEN #temp_checksize2.size = 13.0 THEN #temp_checksize1.size21
+		WHEN #temp_checksize2.size = 13.5 THEN #temp_checksize1.size22
+		WHEN #temp_checksize2.size = 14.0 THEN #temp_checksize1.size23
+		WHEN #temp_checksize2.size = 14.5 THEN #temp_checksize1.size24
+		WHEN #temp_checksize2.size = 15.0 THEN #temp_checksize1.size25
+    END
+FROM #temp_checksize2
+JOIN #temp_checksize1 ON #temp_checksize1.prono = #temp_checksize2.prono AND #temp_checksize1.id = #temp_checksize2.id;
+;
+--xoa nhung size co qty la null
+Delete from #temp_checksize2
+where qty is null
+;
+ALTER TABLE #temp_checksize2
+ALTER COLUMN size VARCHAR(20)
+;
+UPDATE #temp_checksize2
+SET size = 
+    CASE 
+        WHEN CHARINDEX('.', CAST(size AS VARCHAR(20))) = 2 AND RIGHT(CAST(size AS VARCHAR(20)), 2) = '.0' THEN '0' + LEFT(CAST(size AS VARCHAR(20)), 1)
+        WHEN CHARINDEX('.', CAST(size AS VARCHAR(20))) = 2 THEN '0' + CAST(size AS VARCHAR(20))
+        WHEN CHARINDEX('.', CAST(size AS VARCHAR(20))) = 3 AND RIGHT(CAST(size AS VARCHAR(20)), 2) = '.0' THEN LEFT(CAST(size AS VARCHAR(20)), 2)
+        ELSE CAST(size AS VARCHAR(20))
+    END
+WHERE size IS NOT NULL
+;
+delete #temp_checksize2 where qty=0
+;
+
+-- NẾU TRÙNG RY TRÙNG SIZE, SẼ XÓA RY NÀO SUM QTY LẠI NHỎ HƠN RY CÒN LẠI
+-- Bước 1: Tính tổng số lượng (qty) theo prono
+WITH TotalQtyByProno AS (
+    SELECT prono, dangfom, ry, size,
+           SUM(qty) AS total_qty
+    FROM #temp_checksize2
+    GROUP BY prono, dangfom, ry, size
+),
+-- Bước 2: Xác định prono có tổng số lượng lớn nhất cho mỗi cặp dangfom, ry, size
+MaxTotalQty AS (
+    SELECT prono, ry, size,
+           MAX(total_qty) AS max_total_qty
+    FROM TotalQtyByProno
+    GROUP BY prono, ry, size
+),
+-- Bước 3: Chọn các hàng cần giữ lại (các hàng có prono với tổng số lượng lớn nhất)
+RowsToKeep AS (
+    SELECT t.prono, t.dangfom, t.ry, t.size, t.qty
+    FROM #temp_checksize2 t
+    INNER JOIN TotalQtyByProno tq ON t.prono = tq.prono AND t.dangfom = tq.dangfom AND t.ry = tq.ry AND t.size = tq.size
+    INNER JOIN MaxTotalQty mt ON tq.prono = mt.prono AND tq.ry = mt.ry AND tq.size = mt.size AND tq.total_qty = mt.max_total_qty
+)
+-- Bước 4: Xóa các hàng không thuộc RowsToKeep
+DELETE t
+FROM #temp_checksize2 t
+LEFT JOIN RowsToKeep k
+ON t.prono = k.prono AND t.dangfom = k.dangfom AND t.ry = k.ry AND t.size = k.size AND t.qty = k.qty
+WHERE k.prono IS NULL;
+
+DELETE FROM #temp_checksize2
+WHERE EXISTS (
+    SELECT 1
+    FROM #temp_checksize2 AS t2
+    WHERE #temp_checksize2.size = t2.size
+    AND #temp_checksize2.ry = t2.ry
+    AND #temp_checksize2.Id > t2.Id
+);
+--xóa trùng size trùng lệnh
+WITH CTE AS (
+    SELECT 
+        size, 
+        ry, 
+        ROW_NUMBER() OVER (PARTITION BY size, ry ORDER BY (SELECT NULL)) AS row_num
+    FROM #temp_checksize2
+)
+DELETE FROM CTE
+WHERE row_num > 1;
+-- Xóa -1 -2 ở cuối lệnh
+UPDATE #temp_checksize2
+SET ry = CASE
+            WHEN PATINDEX('%-[0-9]', ry) > 0 AND RIGHT(ry, 2) LIKE '-[0-9]' THEN LEFT(ry, LEN(ry) - 2)
+            ELSE ry
+         END
+WHERE ry LIKE '%-%';
+--Tạo 1 bảng để lưu ry: trong file excel có Ry và size đó nhưng trong bảng ddzls không có, và số lượng của size trong excel lớn hơn số lượng của size trong ddzls.
+create table #temp_checksize4(
+	ry varchar(100),
+	size varchar(20)
+);
+--check size có trong excel nhưng không có trong ddzls, ry có trong excel nhưng không có trong ddzls, số lượng size đó trong excel lớn hơn trong ddzls
+insert into #temp_checksize4(ry,size)
+SELECT 
+    t.ry as ryexcel,
+    t.size as sizeexcel
+    --t.qty as qtyexcel,
+    --ISNULL(d.Quantity, 0) as qtyddzl
+FROM 
+    #temp_checksize2 t
+LEFT JOIN 
+    ddzls d ON t.ry = d.DDBH AND t.size = d.cc
+WHERE 
+    d.cc IS NULL OR t.qty > d.Quantity;
+--
+SELECT 
+    ry, 
+    STUFF((
+        SELECT ', ' + size
+        FROM #temp_checksize4 t2
+        WHERE t2.ry = t1.ry
+        FOR XML PATH(''), TYPE
+    ).value('.', 'NVARCHAR(MAX)'), 1, 2, '') as size
+FROM 
+    #temp_checksize4 t1
+GROUP BY 
+    ry;
+
+Drop table #temp_checksize1
+;
+Drop table #temp_checksize2
+;
+drop table #temp_checksize3
+;
+drop table #temp_checksize4
+;
+";
+
+            try
+            {
+                DataTable resultTable = dbConnect.ExecuteQuery(sql);
+
+                if (resultTable.Rows.Count > 0)
+                {
+                    //Nếu lỗi thì xóa bang xoay tua để chạy procedure không bị lỗi
+                    dbConnect.ExecuteQuery(@"delete BANG_XOAY_TUA");
+
+                    //string message = "Thông báo: Có vấn đề về size ở các lệnh:\r\n";
+                    string message = "";
+
+                    // Duyệt qua từng hàng và lấy giá trị từ các cột
+                    foreach (DataRow row in resultTable.Rows)
+                    {
+                        // Giả sử bạn muốn hiển thị giá trị của cột đầu tiên
+                        // Bạn có thể thay đổi theo yêu cầu cụ thể của bạn
+                        message += row[0].ToString() + ": ";
+                        message += row[1].ToString() + "\r\n";
+                    }
+
+                    // Tạo và cấu hình một TextBox để hiển thị thông báo
+                    TextBox textBox = new TextBox
+                    {
+                        Text = message,
+                        Multiline = true,
+                        ReadOnly = true,
+                        Dock = DockStyle.Fill,
+                        ScrollBars = ScrollBars.Both,
+                        WordWrap = true
+                    };
+
+                    // Tạo một Form để chứa TextBox
+                    Form form = new Form
+                    {
+                        Text = "Có vấn đề về size ở các lệnh:",
+                        Width = 600,
+                        Height = 400,
+                        StartPosition = FormStartPosition.CenterScreen
+                    };
+
+                    // Thêm TextBox vào Form
+                    form.Controls.Add(textBox);
+
+                    // Đăng ký sự kiện Click để chọn tất cả văn bản trong TextBox
+                    //textBox.Click += (sender, e) => textBox.SelectAll();
+
+                    // Hiển thị Form
+                    form.ShowDialog();
+
+                    // Thoát ứng dụng sau khi form được đóng
+                    Application.Exit();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Đã xảy ra lỗi khi thực hiện kiểm tra size: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        public static void Check_Gio_Tua()
+        {
+            DBconnect dbConnect = new DBconnect();
+            string sql = @"
+IF OBJECT_ID('temptablell', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE temptablell;
+END
+IF OBJECT_ID('temptableas2', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE temptableas2;
+END
+IF OBJECT_ID('#TempData', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #TempData;
+END
+IF OBJECT_ID('#TempData2', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #TempData2;
+END
+IF OBJECT_ID('TempTable', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE TempTable;
+END
+IF OBJECT_ID('#TempData1', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #TempData1;
+END
+IF OBJECT_ID('#TempData3', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #TempData3;
+END
+IF OBJECT_ID('#TempData4', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #TempData4;
+END
+IF OBJECT_ID('tabletempaskask', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE tabletempaskask;
+END
+IF OBJECT_ID('#TempData5', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #TempData5;
+END
+IF OBJECT_ID('#TempData22', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE #TempData22;
+END
+create table temptablell(
+	id int,
+	row int,
+	prono varchar(20),
+	donvisanxuat varchar(255),
+	ry varchar(255),
+	tengiay varchar(255),
+	dangfom varchar(255),
+	qty int,
+	sochuapc varchar(50),
+	goo varchar(20),
+	may varchar(20),
+	size1 DECIMAL(15,1),
+    size2 DECIMAL(15,1),
+    size3 DECIMAL(15,1),
+    size4 DECIMAL(15,1),
+    size5 DECIMAL(15,1),
+    size6 DECIMAL(15,1),
+    size7 DECIMAL(15,1),
+    size8 DECIMAL(15,1),
+    size9 DECIMAL(15,1),
+    size10 DECIMAL(15,1),
+    size11 DECIMAL(15,1),
+    size12 DECIMAL(15,1),
+    size13 DECIMAL(15,1),
+    size14 DECIMAL(15,1),
+    size15 DECIMAL(15,1),
+    size16 DECIMAL(15,1),
+    size17 DECIMAL(15,1),
+    size18 DECIMAL(15,1),
+    size19 DECIMAL(15,1),
+    size20 DECIMAL(15,1),
+    size21 DECIMAL(15,1),
+    size22 DECIMAL(15,1),
+    size23 DECIMAL(15,1),
+    size24 DECIMAL(15,1),
+    size25 DECIMAL(15,1),
+	UserID varchar(20)
+	)
+;
+-- them du lieu vao bang temptablell
+INSERT INTO temptablell (ProNo,row,donvisanxuat,ry,tengiay,dangfom,sochuapc,goo,may, size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,UserID)
+select ProNo,row,Don_Vi_San_Xuat,ry,Ten_Giay,Dang_Fom,SO_CHUA_PC,Goo,May,size1,size2,size3,size4,size5,size6,size7,size8,size9,size10,size11,size12,size13,size14,size15,size16,size17,size18,size19,size20,size21,size22,size23,size24,size25,UserID
+from bang_xoay_tua
+ORDER BY ProNo, row ASC
+;
+--update donvisanxuat bang temptablell
+update temptablell
+set donvisanxuat = bang_xoay_tua.Don_Vi_San_Xuat
+from temptablell
+join bang_xoay_tua on bang_xoay_tua.prono=temptablell.prono
+;
+--delete cac 2 hang dau de cat size
+delete temptablell
+where row in (0,1)
+;
+Create Table temptableas2(
+	id int,
+	row int,
+	prono varchar(20),
+	dvsx varchar(255),
+	ry varchar(255),
+	seq int,
+	dangfom varchar(255),
+	size DECIMAL(15,1),
+	qty int,
+	goo varchar(50),
+	may varchar(50),
+	UserID varchar(20)
+)
+;
+--them size theo thu tu 1-25 cot size = 1 ma prono
+INSERT INTO temptableas2 (row, prono, dvsx, ry, dangfom,UserID, size,goo,may)
+SELECT row, prono, donvisanxuat, ry, dangfom,UserID, Size,goo,may
+FROM (
+    SELECT row, prono, donvisanxuat, ry, dangfom,UserID,Size,goo,may,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM temptablell
+    UNPIVOT (
+        Size FOR SizeNumber IN (
+            size1, size2, size3, size4, size5, 
+            size6, size7, size8, size9, size10,
+            size11, size12, size13, size14, size15,
+            size16, size17, size18, size19, size20,
+            size21, size22, size23, size24, size25
+        )
+    ) AS unpvt
+) AS NumberedRows
+WHERE RowNum <= 25
+ORDER BY prono, donvisanxuat;
+;
+--lap lai bang temptableas2 de mo rong prono: VD prono1 co 4 lenh tuong duong 25x4=100 hang prono1
+INSERT INTO temptableas2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM temptableas2;
+;
+INSERT INTO temptableas2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM temptableas2;
+;
+INSERT INTO temptableas2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM temptableas2;
+;
+INSERT INTO temptableas2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM temptableas2;
+;
+INSERT INTO temptableas2 (row, prono, dvsx, ry, dangfom,UserID, size)
+SELECT row, prono, dvsx, ry, dangfom,UserID, Size
+FROM temptableas2;
+;
+------------------------------------------------------------
+CREATE TABLE #TempData5 (
+    ry VARCHAR(255),
+    prono VARCHAR(255),
+	id int,
+)
+;
+CREATE TABLE #TempData22 (
+    ry VARCHAR(255),
+    prono VARCHAR(255),
+	id int,
+)
+;
+--them nhung lenh co so hang nho hon so hang gap dieu kien '合計：'-->trong file excel thi se add vo bang #tempdata
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY temptablell.prono ORDER BY temptablell.[row]) AS RowNumber
+    FROM temptablell
+)
+INSERT INTO #TempData5 (ry, prono)
+SELECT NumberedRows.ry, NumberedRows.prono
+FROM NumberedRows
+INNER JOIN (
+    SELECT MAX(temptablell.[row]) AS max_row, temptablell.prono
+    FROM temptablell
+    WHERE tengiay = '合計：'
+    GROUP BY temptablell.prono
+) AS MaxRows ON NumberedRows.prono = MaxRows.prono
+WHERE NumberedRows.RowNumber >= MaxRows.max_row;
+;
+--lay id de xoa may cai nguoc lai
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY temptablell.prono ORDER BY temptablell.[row]) AS RowNumber
+    FROM temptablell
+)
+INSERT INTO #TempData22 (ry, prono)
+SELECT NumberedRows.ry, NumberedRows.prono
+FROM NumberedRows
+INNER JOIN (
+    SELECT MAX(temptablell.[row]) AS max_row, temptablell.prono
+    FROM temptablell
+    WHERE tengiay = '合計：'
+    GROUP BY temptablell.prono
+) AS MaxRows ON NumberedRows.prono = MaxRows.prono
+WHERE NumberedRows.RowNumber <= MaxRows.max_row;
+
+;
+--update id 1 - ... temptableas2  1 id tuong duong 25 size = 25 hang
+WITH CTE AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS row_num,
+           (ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) - 1) / 25 + 1 AS group_num
+    FROM temptableas2
+)
+UPDATE CTE
+SET id = group_num
+;
+delete #TempData5 where ry is null
+;
+--
+WITH CTE AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS row_num,
+           (ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) - 1) / 25 + 1 AS group_num
+    FROM temptableas2
+)
+UPDATE CTE
+SET id = group_num
+;
+delete #TempData22 where ry is null
+;
+--update id 1 - ... #TempData danh so id cho bang #tempdata
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM #TempData5
+)
+UPDATE NumberedRows
+SET ID = RowNum
+;
+--update id 1 - ... #TempData danh so id cho bang #tempdata
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM #TempData22
+)
+UPDATE NumberedRows
+SET ID = RowNum
+;
+-- so sanh neu prono va id bang nhau them them vao (id trong bang #tempdata la nhung hang nam truoc ky tu '合計：' trong excel) --> thoa man dieu kien
+update temptableas2
+ set ry = #TempData5.ry
+ from #TempData5
+ where #TempData5.id=temptableas2.id and #TempData5.prono=temptableas2.prono
+;
+--XOA HANG DAU CHO NGANG VOI BANG #TempData2
+DELETE temptablell WHERE ROW  = 2;
+--update id trong bang temptablell
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY (SELECT NULL)) AS RowNum
+    FROM temptablell
+)
+UPDATE NumberedRows
+SET ID = RowNum
+;
+--xoa id truoc ky tu ### cat hang                  TOI DAY LA DA CAT HANG KHUC TREN CHECKLLAST ROI, PHAI TINH TONG TRUOC KHI CAT
+DELETE temptablell
+FROM temptablell
+INNER JOIN #TempData22 ON #TempData22.prono = temptablell.prono AND #TempData22.id = temptablell.id;
+;
+--update Ry cho phu deu 2 hang A B
+UPDATE t2
+SET t2.ry = t1.ry
+from temptablell t2
+JOIN temptablell t1 
+ON t1.row = (t2.row - 1) AND T1.prono=T2.prono
+WHERE t1.sochuapc = 'A'
+AND t2.sochuapc = 'B'
+;
+------------//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// run
+delete temptablell where ry is null;
+--update id trong bang temptablell
+WITH NumberedRows AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY prono ORDER BY prono) AS RowNum
+    FROM temptablell
+)
+UPDATE NumberedRows
+SET ID = (RowNum + 1) / 2;
+--xoa ry du thua do tao lap nhieu bang
+delete temptableas2 where ry is null;
+-------------------------------//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+--update size ----------------------------------------------------------------------------
+-------------------------------------------------------------------
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size1), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 3.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size2), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 3.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size3), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 4.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size4), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 4.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size5), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 5.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size6), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 5.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size7), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 6.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size8), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 6.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size9), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 7.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size10), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 7.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size11), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 8.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size12), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 8.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size13), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 9.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size14), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 9.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size15), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 10.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size16), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 10.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size17), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 11.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size18), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 11.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size19), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 12.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size20), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 12.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size21), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 13.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size22), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 13.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size23), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 14.0;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size24), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 14.5;
+
+UPDATE temptableas2
+SET qty = (
+    SELECT COALESCE(SUM(temptablell.size25), 0) 
+    FROM temptablell
+    WHERE temptablell.prono = temptableas2.prono 
+    AND temptablell.id = temptableas2.id
+    GROUP BY temptablell.id
+)
+WHERE temptableas2.size = 15.0;
+---
+---			
+--xoa nhung size co qty la null
+Delete from temptableas2
+where qty is null
+;
+UPDATE temptableas2
+SET seq = RIGHT(temptablell.Ry, 2)
+FROM temptableas2
+JOIN temptablell ON temptablell.prono = temptableas2.prono and temptablell.id = temptableas2.id
+WHERE temptablell.Ry LIKE '%TUA%';
+;
+Update temptableas2
+set seq=1
+from temptableas2
+where seq is null
+
+;
+-------------------------------------------------------------------------------------------------------------------------
+UPDATE temptableas2
+SET ry = LEFT(ry, CHARINDEX('TUA', ry) - 2)
+WHERE ry LIKE '%TUA%';
+;
+--xoa trung lap
+WITH cte AS (
+  SELECT prono,seq,dangfom, ry, size, ROW_NUMBER() OVER (PARTITION BY prono,seq,dangfom, ry, size ORDER BY (SELECT NULL)) AS rn
+  FROM temptableas2
+)
+DELETE FROM cte
+WHERE rn > 1;
+;
+--
+update A1
+set A1.dangfom=A2.dangfom,
+	A1.goo=A2.goo,
+	A1.may=A2.may
+ from 
+(select * from temptablell 
+where convert(varchar,id)+prono in(select distinct convert(varchar,a.id)+a.Prono
+from temptablell a
+join temptablell b
+on a.prono=b.prono and a.id=b.id
+where a.sochuapc = 'A' and a.dangfom is null ) and sochuapc='A')A1
+join (select * from temptablell)A2 on A1.prono=A2.prono and A2.id+1=A1.id;
+--
+UPDATE t2
+SET t2.dangfom = t1.dangfom,
+	t2.goo = t1.goo,
+	t2.may = t1.may
+from temptablell t2
+JOIN temptablell t1 
+ON t1.row = (t2.row - 1) AND T1.prono=T2.prono
+WHERE t1.sochuapc = 'A'
+AND t2.sochuapc = 'B';
+--
+update temptableas2
+set dangfom =temptablell.dangfom,
+	goo =temptablell.goo,
+	may =temptablell.may
+from temptableas2
+join temptablell on temptablell.prono=temptableas2.prono and temptablell.id=temptableas2.id;
+--
+delete temptableas2
+where qty = 0;
+--
+ALTER TABLE temptableas2
+ALTER COLUMN size VARCHAR(20);
+--
+UPDATE temptableas2
+SET size = 
+    CASE 
+        WHEN CHARINDEX('.', CAST(size AS VARCHAR(20))) = 2 THEN '0' + CAST(size AS VARCHAR(20))
+        WHEN CHARINDEX('.', CAST(size AS VARCHAR(20))) = 3 THEN CAST(size AS VARCHAR(20))
+    END
+WHERE size IS NOT NULL; -- Điều kiện WHERE để chỉ cập nhật các hàng có giá trị size khác NULL
+--
+--Xóa khoảnh trắng ở cuối ry
+UPDATE temptableas2
+SET ry = RTRIM(ry);
+--xóa những hàng trùng size,ry,qty,dangfom giữ lại 1 prono
+WITH CTE AS (
+    SELECT ry, seq, dangfom, size, qty, prono,
+           ROW_NUMBER() OVER (PARTITION BY ry, seq, dangfom, size, qty ORDER BY prono) AS RowNum
+    FROM temptableas2
+)
+DELETE FROM CTE
+WHERE RowNum > 1;
+--
+SELECT DISTINCT t2.ry, t2.seq
+FROM temptableas2 t2
+LEFT JOIN Timestamp ts ON ts.TS_Tour = t2.dangfom
+WHERE ts.TS_Tour IS NULL;
+
+Drop table temptablell
+;
+Drop table temptableas2
+;
+drop table #TempData5
+;
+drop table #TempData22
+;";
+
+            try
+            {
+                DataTable resultTable = dbConnect.ExecuteQuery(sql);
+
+                if (resultTable.Rows.Count > 0)
+                {
+                    //Nếu lỗi thì xóa bang xoay tua để chạy procedure không bị lỗi
+                    dbConnect.ExecuteQuery(@"delete BANG_XOAY_TUA");
+
+                    //string message = "Thông báo: Có vấn đề về size ở các lệnh:\r\n";
+                    string message = "";
+
+                    // Duyệt qua từng hàng và lấy giá trị từ các cột
+                    foreach (DataRow row in resultTable.Rows)
+                    {
+                        // Giả sử bạn muốn hiển thị giá trị của cột đầu tiên
+                        // Bạn có thể thay đổi theo yêu cầu cụ thể của bạn
+                        message += row[0].ToString() + " TUA ";
+                        message += row[1].ToString() + "\r\n";
+                    }
+
+                    // Tạo và cấu hình một TextBox để hiển thị thông báo
+                    TextBox textBox = new TextBox
+                    {
+                        Text = message,
+                        Multiline = true,
+                        ReadOnly = true,
+                        Dock = DockStyle.Fill,
+                        ScrollBars = ScrollBars.Both,
+                        WordWrap = true
+                    };
+
+                    // Tạo một Form để chứa TextBox
+                    Form form = new Form
+                    {
+                        Text = "Không tìm thấy giờ ở các lệnh, tua sau:",
+                        Width = 600,
+                        Height = 400,
+                        StartPosition = FormStartPosition.CenterScreen
+                    };
+
+                    // Thêm TextBox vào Form
+                    form.Controls.Add(textBox);
+
+                    // Đăng ký sự kiện Click để chọn tất cả văn bản trong TextBox
+                    //textBox.Click += (sender, e) => textBox.SelectAll();
+
+                    // Hiển thị Form
+                    form.ShowDialog();
+
+                    // Thoát ứng dụng sau khi form được đóng
+                    Application.Exit();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Đã xảy ra lỗi khi thực hiện kiểm tra size: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
 
 
         //

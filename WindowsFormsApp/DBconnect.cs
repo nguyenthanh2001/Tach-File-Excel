@@ -180,6 +180,37 @@ namespace WindowsFormsApp
             }
         }
         //
+        public int ExecuteScalarInt(string query, SqlParameter[] parameters = null)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                if (parameters != null)
+                {
+                    command.Parameters.AddRange(parameters);
+                }
+                connection.Open();
+                object result = command.ExecuteScalar();
+                if (result != null && result != DBNull.Value)
+                {
+                    int parsedResult;
+                    if (int.TryParse(result.ToString(), out parsedResult))
+                    {
+                        return parsedResult;
+                    }
+                    else
+                    {
+                        throw new FormatException("Kết quả trả về không thể chuyển đổi sang kiểu int.");
+                    }
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+
+        //
     }
 
 }
